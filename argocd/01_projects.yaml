@@ -35,4 +35,4 @@ spec:
     - group: '*'
       kind: '*'
   sourceRepos:
-    - 'https://github.com/sysadmin-exe/cloudnova'
+    - 'https://github.com/sysadmin-exe/argocd-rollout-lab'

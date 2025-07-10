@@ -15,7 +15,7 @@ func main() {
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	http.HandleFunc("/", home)
+	http.HandleFunc("/static", home)
 	http.HandleFunc("/ping", pingHandler) // Add the ping handler
 
 	log.Printf("Starting server on %s...\n", port)

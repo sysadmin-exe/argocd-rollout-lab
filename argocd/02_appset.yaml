@@ -15,7 +15,7 @@ spec:
         generators:
           - clusters: {}
           - git:
-              repoURL: https://github.com/sysadmin-exe/cloudnova
+              repoURL: https://github.com/sysadmin-exe/argocd-rollout-lab
               revision: HEAD
               directories:
                 - path: 'apps/*'
@@ -36,7 +36,7 @@ spec:
       project: cloudnova
       source:
         path: '{{.path.path}}/manifests'
-        repoURL: https://github.com/sysadmin-exe/cloudnova
+        repoURL: https://github.com/sysadmin-exe/argocd-rollout-lab
         targetRevision: HEAD
         # helm:
         #   valueFiles:
