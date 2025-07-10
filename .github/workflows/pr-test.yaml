@@ -1,0 +1,34 @@
+name: Test Application Changes
+on:
+  pull_request:
+    paths:
+      - apps/**
+
+jobs:
+  get-changed-apps:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+        
+      - name: Run changed-files with dir_names
+        id: changed-files-dir-names
+        uses: tj-actions/changed-files@v46
+        with:
+          files: |
+            apps/**
+    
+      - name: Run tests in changed directories
+        if: steps.changed-files-dir-names.outputs.any_changed == 'true'
+        run: |
+          echo "Changed files:"
+          echo "${{ steps.changed-files-dir-names.outputs.all_changed_files }}"
+          
+          # Get unique directories and run `go test` in each
+          for file in ${{ steps.changed-files-dir-names.outputs.all_changed_files }}; do
+            dir=$(dirname "$file")
+            echo "Running tests in: $dir"
+            # Example (cd "$dir" && go test ./...)
+          done

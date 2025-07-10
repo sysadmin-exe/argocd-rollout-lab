@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: happy-blue-green
+spec:
+  replicas: 4
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: happy-blue-green
+  template:
+    metadata:
+      labels:
+        app: happy-blue-green
+    spec:
+      containers:
+        - name: happy-blue-green
+          image: sysadminexe/happy-service:413196
+          imagePullPolicy: Always
+          env:
+            - name: foo
+              value: bar
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+  strategy:
+    blueGreen:
+      activeService: happy-blue-green-active
+      previewService: happy-blue-green-preview
+      autoPromotionEnabled: false
+      previewReplicaCount: 2
+      autoPromotionSeconds: 300
+      prePromotionAnalysis:
+        templates:
+          - templateName: status-check
+            clusterScope: true
+        args:
+          - name: service-name
+            value: happy-blue-green-preview.happy-service-bg.svc.cluster.local

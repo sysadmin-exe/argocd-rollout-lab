@@ -1,0 +1,45 @@
+name: Update File and Auto-Merge PR
+description: 'This workflow updates a file in the repository and creates a pull request. It also enables auto-merge for the PR if possible.'
+inputs:
+  docker_repo_tag:
+    description: 'Docker repository and tag'
+    required: true
+  manifest_path:
+    description: 'Path to the manifest file'
+    required: true
+  commit_message:
+    description: 'Commit message'
+    required: true
+    default: 'Automated update of configuration file'
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Git Identity
+      shell: bash
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'actions@github.com'
+        
+    - name: Install yq
+      shell: bash
+      run: |
+        wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        chmod +x /usr/local/bin/yq
+
+    - name: Update file
+      shell: bash
+      run: |
+        yq 'select(.kind == "Rollout") | .spec.template.spec.containers[0].image = "${{ inputs.docker_repo_tag }}"' -i ${{ inputs.manifest_path }}
+
+    - name: Commit and push changes
+      shell: bash
+      run: |
+        git pull origin main
+        git add ${{ inputs.manifest_path }}
+        git commit -m "${{ inputs.commit_message }}"
+        git push --set-upstream origin main
+        

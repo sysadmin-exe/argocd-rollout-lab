@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  annotations:
+  name: cloudnova
+  namespace: argocd
+spec:
+  ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/syncPolicy
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          - clusters: {}
+          - git:
+              repoURL: https://github.com/sysadmin-exe/cloudnova
+              revision: HEAD
+              directories:
+                - path: 'apps/*'
+
+  template:
+    metadata:
+      name: '{{.path.basename}}'
+      namespace: argocd
+    spec:
+      destination:
+        namespace: '{{.path.basename}}'
+        server: https://kubernetes.default.svc
+      ignoreDifferences:
+        - group: argoproj.io
+          jsonPointers:
+            - /status
+          kind: Application
+      project: cloudnova
+      source:
+        path: '{{.path.path}}/manifests'
+        repoURL: https://github.com/sysadmin-exe/cloudnova
+        targetRevision: HEAD
+        # helm:
+        #   valueFiles:
+        #     - ''
+      syncPolicy:
+        automated:
+          allowEmpty: true
+          prune: true
+          selfHeal: true
+        managedNamespaceMetadata:
+          labels:
+            name: '{{.path.basename}}'
+        syncOptions:
+        - allowEmpty=true
+        - CreateNamespace=true
+  templatePatch: |
+    metadata:
+      labels: 
+        name: '{{.path.basename}}'
+    spec:
+      syncPolicy:
+        managedNamespaceMetadata:
+          labels:
+            name: '{{.path.basename}}'

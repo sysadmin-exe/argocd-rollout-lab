@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterAnalysisTemplate
+metadata:
+  name: status-check
+spec:
+  args:
+    - name: service-name
+  metrics:
+    - name: status-check
+      provider:
+        job:
+          metadata:
+            labels:
+              app: "{{args.service-name}}"
+          spec:
+            backoffLimit: 3
+            template:
+              spec:
+                containers:
+                  - name: status-check
+                    image: alpine/curl:latest
+                    command:
+                      [curl, "{{args.service-name}}:5000/ping"]
+                restartPolicy: Never
