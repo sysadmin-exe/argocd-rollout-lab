@@ -4,34 +4,52 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
-const version = "v2"
+const version = "v1"
 
-// const version = "v2" // Uncomment this line to switch to v2
+// customResponseWriter captures status code for logging
+type customResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (lrw *customResponseWriter) WriteHeader(code int) {
+	lrw.statusCode = code
+	lrw.ResponseWriter.WriteHeader(code)
+}
+
+// loggingMiddleware wraps all handlers to log method, path, status, and timing
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		lrw := &customResponseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+		next.ServeHTTP(lrw, r)
+		duration := time.Since(start)
+
+		log.Printf("%s %s %d %s", r.Method, r.URL.Path, lrw.statusCode, duration)
+	})
+}
 
 func main() {
 	port := ":8080"
 
 	// Serve static files
 	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", logMiddleware(http.StripPrefix("/static/", fs)))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	http.Handle("/", logMiddleware(http.HandlerFunc(home)))
-	http.Handle("/ping", logMiddleware(http.HandlerFunc(pingHandler))) // Add the ping handler
+	// Wrap home and ping handlers
+	http.Handle("/static", loggingMiddleware(http.HandlerFunc(home)))
+	http.Handle("/ping", loggingMiddleware(http.HandlerFunc(pingHandler)))
+
+	// Wrap default mux for all handlers (including static)
+	loggedMux := loggingMiddleware(http.DefaultServeMux)
 
 	log.Printf("Starting server on %s...\n", port)
-	if err := http.ListenAndServe(port, nil); err != nil {
+	if err := http.ListenAndServe(port, loggedMux); err != nil {
 		log.Fatalf("Error: %v\n", err)
 	}
-}
-
-// Middleware to log requests
-func logMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Request: %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
-		next.ServeHTTP(w, r)
-	})
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
