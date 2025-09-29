@@ -2,6 +2,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: happy-blue-green
+  labels:
+    app: happy-blue-green
 spec:
   replicas: 4
   revisionHistoryLimit: 2
