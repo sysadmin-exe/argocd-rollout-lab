@@ -2,6 +2,9 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: joyful-canary
+  metadata:
+    labels:
+      app: joyful-canary
 spec:
   replicas: 5
   revisionHistoryLimit: 2
