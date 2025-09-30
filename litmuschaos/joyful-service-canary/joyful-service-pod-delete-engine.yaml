@@ -1,0 +1,127 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: joyful-litmus-admin
+  namespace: joyful-service-canary
+  labels:
+    name: joyful-litmus-admin
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: joyful-litmus-admin-role
+  namespace: joyful-service-canary
+rules:
+# read access to list/watch pods, deployments, jobs, replicasets, chaos resources
+  - verbs:
+      - get
+      - list
+      - watch
+    apiGroups:
+      - ""
+      - "apps"
+      - "batch"
+      - "litmuschaos.io"
+    resources:
+      - secrets
+      - deployments
+      - jobs
+      - pods
+      - pods/log
+      - rollouts
+      - events
+      - configmaps
+      - chaosengines
+      - chaosexperiments
+      - chaosresults
+      - replicasets
+# full access to create/update/delete chaos resources
+  - verbs:
+      - get
+      - create
+      - update
+      - patch
+      - list
+      - watch
+      - delete
+    apiGroups:
+      - ""
+      - "apps"
+      - "batch"
+      - "litmuschaos.io"
+    resources:
+      - pods
+      - events
+      - jobs
+      - chaosresults
+      - chaosengines
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: joyful-litmus-admin-role-binding
+  namespace: joyful-service-canary
+  labels:
+    name: joyful-litmus-admin-role-binding
+subjects:
+  - kind: ServiceAccount
+    name: joyful-litmus-admin
+    namespace: joyful-service-canary
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: joyful-litmus-admin-role
+
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: joyful-service-pod-delete
+  namespace: joyful-service-canary
+  labels:
+    chaos: enabled
+spec:
+  engineState: active                 # set to 'stop' to pause via Git
+  annotationCheck: "true"              # require app annotation as extra guard
+  appinfo:
+    appns: joyful-service-canary
+    applabel: app=joyful-canary
+    appkind: rollout
+  chaosServiceAccount: joyful-litmus-admin
+  experiments:
+    - name: joyful-pod-delete
+      spec:
+        components:
+          env:
+            - name: TARGET_PODS
+              value: ""               # leave empty to select via label
+            - name: PODS_AFFECTED_PERC
+              value: ""
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"
+            - name: CHAOS_INTERVAL
+              value: "10"
+            - name: FORCE
+              value: "false"
+
+        # Add steady-state probes (HTTP/Prometheus) to gate success/failure
+        probe:
+          - name: joyful-liveness
+            type: "httpProbe"
+            mode: "Edge"               # The probe will check hypothesis both before and after the Test.
+            runProperties:
+              probeTimeout: 5s
+              retry: 2
+              interval: 5s
+              initialDelay: 1s
+              attempt: 3
+              stopOnFailure: true
+            httpProbe/inputs:
+              url: "http://joyful-canary.joyful-service-canary.svc.cluster.local:5000/ping"
+              insecureSkipVerify: false
+              method: 
+                get:
+                  criteria: "=="
+                  responseCode: "200"

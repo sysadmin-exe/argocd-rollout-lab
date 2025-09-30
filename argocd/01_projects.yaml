@@ -36,3 +36,26 @@ spec:
       kind: '*'
   sourceRepos:
     - 'https://github.com/sysadmin-exe/argocd-rollout-lab'
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  annotations:
+    argocd-autopilot.argoproj-labs.io/default-dest-server: https://kubernetes.default.svc
+    argocd.argoproj.io/sync-options: PruneLast=true
+    argocd.argoproj.io/sync-wave: "-2"
+  name: cloudnova-litmuschaos
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  description: cloudnova-litmuschaos Applications project
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  sourceRepos:
+    - 'https://github.com/sysadmin-exe/argocd-rollout-lab'

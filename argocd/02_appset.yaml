@@ -61,3 +61,68 @@ spec:
         managedNamespaceMetadata:
           labels:
             name: '{{.path.basename}}'
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  annotations:
+  name: cloudnova-litmuschaos
+  namespace: argocd
+spec:
+  ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/syncPolicy
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          - clusters: {}
+          - git:
+              repoURL: https://github.com/sysadmin-exe/argocd-rollout-lab
+              revision: HEAD
+              directories:
+                - path: 'litmuschaos/*'
+
+  template:
+    metadata:
+      name: '{{.path.basename}}-litmuschaos'
+      namespace: argocd
+    spec:
+      destination:
+        namespace: '{{.path.basename}}'
+        server: https://kubernetes.default.svc
+      ignoreDifferences:
+        - group: argoproj.io
+          jsonPointers:
+            - /status
+          kind: Application
+      project: cloudnova-litmuschaos
+      source:
+        path: '{{.path.path}}'
+        repoURL: https://github.com/sysadmin-exe/argocd-rollout-lab
+        targetRevision: HEAD
+        # helm:
+        #   valueFiles:
+        #     - ''
+      syncPolicy:
+        automated:
+          allowEmpty: true
+          prune: true
+          selfHeal: true
+        managedNamespaceMetadata:
+          labels:
+            name: '{{.path.basename}}'
+        syncOptions:
+        - allowEmpty=true
+        - CreateNamespace=true
+  templatePatch: |
+    metadata:
+      labels: 
+        name: '{{.path.basename}}'
+    spec:
+      syncPolicy:
+        managedNamespaceMetadata:
+          labels:
+            name: '{{.path.basename}}'
