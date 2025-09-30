@@ -83,7 +83,7 @@ metadata:
   labels:
     chaos: enabled
 spec:
-  engineState: stop                 # set to 'stop' to pause via Git
+  engineState: active                 # set to 'stop' to pause via Git
   annotationCheck: "true"              # require app annotation as extra guard
   appinfo:
     appns: joyful-service-canary

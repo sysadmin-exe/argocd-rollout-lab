@@ -105,13 +105,11 @@ spec:
           namespace: joyful-service-canary
         - group: "*"
           kind: Job
-          managedFieldsManagers:
-          - kube-controller-manager
+          name: "*"
           namespace: joyful-service-canary
         - group: litmuschaos.io
           kind: ChaosResult
-          managedFieldsManagers:
-          - experiments
+          name: "*"
           namespace: joyful-service-canary
       project: cloudnova-litmuschaos
       source:
