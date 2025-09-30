@@ -59,3 +59,12 @@ spec:
       kind: '*'
   sourceRepos:
     - 'https://github.com/sysadmin-exe/argocd-rollout-lab'
+  orphanedResources:
+    warn: false
+    ignore:
+      - group: ""           # Pods created by the runner
+        kind: Pod
+      - group: batch        # Jobs created by experiments
+        kind: Job
+      - group: litmuschaos.io
+        kind: ChaosResult   # Results CR created by Litmus

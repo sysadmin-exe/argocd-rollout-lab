@@ -98,6 +98,21 @@ spec:
           jsonPointers:
             - /status
           kind: Application
+        - group: "*"
+          kind: Pod
+          managedFieldsManagers:
+          - chaos-operator
+          namespace: joyful-service-canary
+        - group: "*"
+          kind: Job
+          managedFieldsManagers:
+          - kube-controller-manager
+          namespace: joyful-service-canary
+        - group: litmuschaos.io
+          kind: ChaosResult
+          managedFieldsManagers:
+          - experiments
+          namespace: joyful-service-canary
       project: cloudnova-litmuschaos
       source:
         path: '{{.path.path}}'
@@ -109,7 +124,7 @@ spec:
       syncPolicy:
         automated:
           allowEmpty: true
-          prune: true
+          prune: false
           selfHeal: true
         managedNamespaceMetadata:
           labels:
@@ -117,6 +132,8 @@ spec:
         syncOptions:
         - allowEmpty=true
         - CreateNamespace=true
+        - RespectIgnoreDifferences=true
+        - ApplyOutOfSyncOnly=true
   templatePatch: |
     metadata:
       labels: 
@@ -126,3 +143,8 @@ spec:
         managedNamespaceMetadata:
           labels:
             name: '{{.path.basename}}'
+        automated:
+          enable: true
+          allowEmpty: true
+          prune: false
+          selfHeal: true
