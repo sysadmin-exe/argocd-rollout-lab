@@ -106,11 +106,9 @@ spec:
         - group: "*"
           kind: Job
           name: "*"
-          namespace: joyful-service-canary
         - group: litmuschaos.io
           kind: ChaosResult
           name: "*"
-          namespace: joyful-service-canary
       project: cloudnova-litmuschaos
       source:
         path: '{{.path.path}}'
