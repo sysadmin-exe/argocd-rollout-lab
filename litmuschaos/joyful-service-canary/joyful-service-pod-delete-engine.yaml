@@ -6,8 +6,8 @@ metadata:
   labels:
     chaos: enabled
 spec:
-  engineState: active                 # set to 'stop' to pause via Git
-  annotationCheck: "true"              # require app annotation as extra guard
+  engineState: stop                 # set to 'stop' to pause via Git and 'active' to run
+  annotationCheck: 'true'             # require app annotation as extra guard
   jobCleanUpPolicy: delete
   appinfo:
     appns: joyful-service-canary
@@ -20,16 +20,17 @@ spec:
         components:
           env:
             - name: TARGET_PODS
-              value: ""               # leave empty to select via label
+              value: ''             # leave empty to select via label
             - name: PODS_AFFECTED_PERC
-              value: ""
+              value: ''
             - name: TOTAL_CHAOS_DURATION
-              value: "60"
+              value: '60'
             - name: CHAOS_INTERVAL
-              value: "10"
+              value: '10'
             - name: FORCE
-              value: "false"
-
+              value: 'false'
+          resources: {}	
+          statusCheckTimeouts: {}
         # Add steady-state probes (HTTP/Prometheus) to gate success/failure
         probe:
           - name: joyful-liveness
