@@ -4,13 +4,13 @@ description:
     Deletes a pod belonging to a deployment/statefulset/daemonset
 kind: ChaosExperiment
 metadata:
-  name: joyful-pod-memory-hog
+  name: pod-delete
   namespace: joyful-service-canary
 spec:
   definition:
     scope: Cluster
     labels:
-      name: joyful-pod-memory-hog
+      name: pod-delete
     permissions:
       - apiGroups:
           - ""
@@ -46,7 +46,7 @@ spec:
     imagePullPolicy: Always
     args:
     - -c
-    - ./experiments -name pod-memory-hog
+    - ./experiments -name pod-delete
     command:
     - /bin/bash
     env:
