@@ -1,0 +1,189 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  creationTimestamp: null
+  labels:
+    infra_id: 61e74c19-3670-4711-b6f1-c3bbb39ccb3f
+    revision_id: 1689a60c-91a0-4762-bb3e-793fb1ee4fd5
+    subject: '{{workflow.parameters.appNamespace}}_kube-proxy'
+    workflow_id: 07ef510b-9bc1-4cd9-b8ab-57d394a0a4fd
+    workflows.argoproj.io/controller-instanceid: 61e74c19-3670-4711-b6f1-c3bbb39ccb3f
+  name: test-gitops-happy
+  namespace: litmuschaos
+spec:
+  arguments:
+    parameters:
+    - name: adminModeNamespace
+      value: litmuschaos
+    - name: appNamespace
+      value: kube-system
+  entrypoint: argowf-chaos
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+  serviceAccountName: argo-chaos
+  templates:
+  - inputs: {}
+    metadata: {}
+    name: argowf-chaos
+    outputs: {}
+    steps:
+    - - arguments: {}
+        name: install-chaos-faults
+        template: install-chaos-faults
+    - - arguments: {}
+        name: run-chaos
+        template: run-chaos
+    - - arguments: {}
+        name: cleanup-chaos-resources
+        template: cleanup-chaos-resources
+  - container:
+      args:
+      - kubectl apply -f /tmp/pod-delete.yaml -n {{workflow.parameters.adminModeNamespace}}
+      command:
+      - sh
+      - -c
+      image: litmuschaos/k8s:latest
+      name: ""
+      resources: {}
+    inputs:
+      artifacts:
+      - name: install-chaos-faults
+        path: /tmp/pod-delete.yaml
+        raw:
+          data: |
+            apiVersion: litmuschaos.io/v1alpha1
+            description:
+              message: |
+                Deletes a pod belonging to a deployment/statefulset/daemonset
+            kind: ChaosExperiment
+            metadata:
+              name: pod-delete
+            spec:
+              definition:
+                scope: Namespaced
+                permissions:
+                  - apiGroups:
+                      - ""
+                      - "apps"
+                      - "batch"
+                      - "litmuschaos.io"
+                    resources:
+                      - "deployments"
+                      - "jobs"
+                      - "pods"
+                      - "pods/log"
+                      - "events"
+                      - "configmaps"
+                      - "chaosengines"
+                      - "chaosexperiments"
+                      - "chaosresults"
+                    verbs:
+                      - "create"
+                      - "list"
+                      - "get"
+                      - "patch"
+                      - "update"
+                      - "delete"
+                  - apiGroups:
+                      - ""
+                    resources:
+                      - "nodes"
+                    verbs:
+                      - "get"
+                      - "list"
+                image: "litmuschaos.docker.scarf.sh/litmuschaos/go-runner:3.21.0"
+                imagePullPolicy: Always
+                args:
+                - -c
+                - ./experiments -name pod-delete
+                command:
+                - /bin/bash
+                env:
+
+                - name: TOTAL_CHAOS_DURATION
+                  value: '15'
+
+                # Period to wait before and after injection of chaos in sec
+                - name: RAMP_TIME
+                  value: ''
+
+                # provide the kill count
+                - name: KILL_COUNT
+                  value: ''
+
+                - name: FORCE
+                  value: 'true'
+
+                - name: CHAOS_INTERVAL
+                  value: '5'
+
+                labels:
+                  name: pod-delete
+    metadata: {}
+    name: install-chaos-faults
+    outputs: {}
+  - container:
+      args:
+      - -file=/tmp/chaosengine-run-chaos.yaml
+      - -saveName=/tmp/engine-name
+      image: docker.io/litmuschaos/litmus-checker:2.11.0
+      name: ""
+      resources: {}
+    inputs:
+      artifacts:
+      - name: run-chaos
+        path: /tmp/chaosengine-run-chaos.yaml
+        raw:
+          data: |
+            apiVersion: litmuschaos.io/v1alpha1
+            kind: ChaosEngine
+            metadata:
+              namespace: "{{workflow.parameters.adminModeNamespace}}"
+              labels:
+                context: "{{workflow.parameters.appNamespace}}_kube-proxy"
+                workflow_run_id: "{{ workflow.uid }}"
+                workflow_name: test-gitops-happy
+              annotations:
+                probeRef: '[{"name":"happy-service","mode":"Edge"}]'
+              generateName: run-chaos
+            spec:
+              appinfo:
+                appns: happy-service-bg
+                applabel: app=happy-blue-green
+                appkind: rollout
+              jobCleanUpPolicy: retain
+              engineState: active
+              chaosServiceAccount: litmus-admin
+              experiments:
+                - name: pod-delete
+                  spec:
+                    components:
+                      env:
+                        - name: TOTAL_CHAOS_DURATION
+                          value: "60"
+                        - name: CHAOS_INTERVAL
+                          value: "10"
+                        - name: FORCE
+                          value: "false"
+    metadata:
+      labels:
+        weight: "10"
+    name: run-chaos
+    outputs: {}
+  - container:
+      args:
+      - kubectl delete chaosengine -l workflow_run_id={{workflow.uid}} -n {{workflow.parameters.adminModeNamespace}}
+      command:
+      - sh
+      - -c
+      image: litmuschaos/k8s:latest
+      name: ""
+      resources: {}
+    inputs: {}
+    metadata: {}
+    name: cleanup-chaos-resources
+    outputs: {}
+status:
+  finishedAt: null
+  startedAt: null
