@@ -6,7 +6,7 @@ metadata:
   labels:
     chaos: enabled
 spec:
-  engineState: stop                 # set to 'stop' to pause via Git and 'active' to run
+  engineState: active                 # set to 'stop' to pause via Git and 'active' to run
   annotationCheck: 'true'             # require app annotation as extra guard
   jobCleanUpPolicy: delete
   appinfo:
