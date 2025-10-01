@@ -50,3 +50,38 @@ spec:
                 get:
                   criteria: "=="
                   responseCode: "200"
+    - name: joyful-pod-memory-hog
+      spec:
+        components:
+          env:
+            - name: TARGET_PODS
+              value: ''             # leave empty to select via label
+            - name: PODS_AFFECTED_PERC
+              value: ''
+            - name: TOTAL_CHAOS_DURATION
+              value: '60'
+            - name: CHAOS_INTERVAL
+              value: '10'
+            - name: FORCE
+              value: 'false'
+          resources: {}	
+          statusCheckTimeouts: {}
+        # Add steady-state probes (HTTP/Prometheus) to gate success/failure
+        probe:
+          - name: joyful-liveness
+            type: "httpProbe"
+            mode: "Edge"               # The probe will check hypothesis both before and after the Test.
+            runProperties:
+              probeTimeout: 5s
+              retry: 2
+              interval: 5s
+              initialDelay: 1s
+              attempt: 3
+              stopOnFailure: true
+            httpProbe/inputs:
+              url: "http://joyful-canary.joyful-service-canary.svc.cluster.local:5000/ping"
+              insecureSkipVerify: false
+              method: 
+                get:
+                  criteria: "=="
+                  responseCode: "200"
