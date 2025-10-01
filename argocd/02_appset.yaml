@@ -102,7 +102,6 @@ spec:
           kind: Pod
           managedFieldsManagers:
           - chaos-operator
-          namespace: joyful-service-canary
         - group: "*"
           kind: Job
           name: "*"
@@ -139,8 +138,3 @@ spec:
         managedNamespaceMetadata:
           labels:
             name: '{{.path.basename}}'
-        automated:
-          enable: true
-          allowEmpty: true
-          prune: false
-          selfHeal: true
