@@ -3,8 +3,6 @@ kind: ChaosEngine
 metadata:
   name: joyful-service-chaos-engine
   namespace: joyful-service-canary
-  labels:
-    chaos: enabled
 spec:
   engineState: active                 # set to 'stop' to pause via Git and 'active' to run
   annotationCheck: 'true'             # require app annotation as extra guard
