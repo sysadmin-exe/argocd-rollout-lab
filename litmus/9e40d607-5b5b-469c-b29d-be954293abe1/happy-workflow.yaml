@@ -4,7 +4,8 @@ metadata:
   name: happy-workflow
   namespace: litmuschaos
   labels:
-    subject: "{{workflow.parameters.appNamespace}}_kube-proxy"
+    subject: "{{workflow.parameters.appNamespace}}_happy"
+    workflows.argoproj.io/controller-instanceid: 61e74c19-3670-4711-b6f1-c3bbb39ccb3f
 spec:
   entrypoint: argowf-chaos
   serviceAccountName: argo-chaos
