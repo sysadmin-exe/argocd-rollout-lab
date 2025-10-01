@@ -142,6 +142,8 @@ spec:
                 context: "{{workflow.parameters.appNamespace}}_kube-proxy"
                 workflow_run_id: "{{ workflow.uid }}"
                 workflow_name: test-gitops-joyful
+              annotations:
+                probeRef: '[{"name":"joyful","mode":"Edge"}]'
               generateName: test-gitops-joyful
             spec:
               appinfo:
@@ -162,24 +164,6 @@ spec:
                           value: "10"
                         - name: FORCE
                           value: "false"
-              probe:
-                - name: joyful-liveness
-                  type: "httpProbe"
-                  mode: "Edge"            
-                  runProperties:
-                    probeTimeout: 5s
-                    retry: 2
-                    interval: 5s
-                    initialDelay: 1s
-                    attempt: 3
-                    stopOnFailure: true
-                  httpProbe/inputs:
-                    url: "http://joyful-canary.joyful-service-canary.svc.cluster.local:5000/ping"
-                    insecureSkipVerify: false
-                    method: 
-                      get:
-                        criteria: "=="
-                        responseCode: "200"
 
     metadata:
       labels:
