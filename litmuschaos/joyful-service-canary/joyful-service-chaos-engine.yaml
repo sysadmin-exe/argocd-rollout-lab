@@ -1,7 +1,7 @@
 apiVersion: litmuschaos.io/v1alpha1
 kind: ChaosEngine
 metadata:
-  name: joyful-service-pod-delete
+  name: joyful-service-chaos-engine
   namespace: joyful-service-canary
   labels:
     chaos: enabled
