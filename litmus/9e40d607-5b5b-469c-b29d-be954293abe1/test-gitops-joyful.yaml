@@ -4,7 +4,9 @@ metadata:
   creationTimestamp: null
   labels:
     infra_id: 61e74c19-3670-4711-b6f1-c3bbb39ccb3f
+    revision_id: ca391ed9-b845-4236-b304-0d7650af9216
     subject: '{{workflow.parameters.appNamespace}}_kube-proxy'
+    workflow_id: fc32fa78-1de4-442d-8dde-60005f3b3309
     workflows.argoproj.io/controller-instanceid: 61e74c19-3670-4711-b6f1-c3bbb39ccb3f
   name: test-gitops-joyful
   namespace: litmuschaos
@@ -14,8 +16,8 @@ spec:
     - name: adminModeNamespace
       value: litmuschaos
     - name: appNamespace
-      value: joyful-service-canary
-  entrypoint: joyful-chaos
+      value: kube-system
+  entrypoint: argowf-chaos
   securityContext:
     runAsNonRoot: true
     runAsUser: 1000
@@ -23,7 +25,7 @@ spec:
   templates:
   - inputs: {}
     metadata: {}
-    name: joyful-chaos
+    name: argowf-chaos
     outputs: {}
     steps:
     - - arguments: {}
@@ -144,7 +146,7 @@ spec:
                 workflow_name: test-gitops-joyful
               annotations:
                 probeRef: '[{"name":"joyful","mode":"Edge"}]'
-              generateName: test-gitops-joyful
+              generateName: run-chaos
             spec:
               appinfo:
                 appns: joyful-service-canary
