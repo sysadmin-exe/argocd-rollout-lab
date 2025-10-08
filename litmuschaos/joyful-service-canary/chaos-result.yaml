@@ -14,4 +14,4 @@ metadata:
   namespace: joyful-service-canary
 spec:
   engine: joyful-service-chaos-engine
-  experiment: joyful-pod-delete
+  experiment: joyful-pod-memory-hog

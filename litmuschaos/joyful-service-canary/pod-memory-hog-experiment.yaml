@@ -10,7 +10,7 @@ spec:
   definition:
     scope: Cluster
     labels:
-      name: joyful-pod-memory-hog
+      name: pod-memory-hog
     permissions:
       - apiGroups:
           - ""
