@@ -59,9 +59,9 @@ spec:
             - name: TOTAL_CHAOS_DURATION
               value: '60'
             - name: NUMBER_OF_WORKERS
-              value: '5'
+              value: '4'
             - name: MEMORY_CONSUMPTION # memory consumption value in MB
-              value: '600'
+              value: '500'
             - name: CHAOS_INTERVAL
               value: '10'
             - name: FORCE
