@@ -4,7 +4,7 @@ metadata:
   name: joyful-service-chaos-engine
   namespace: joyful-service-canary
 spec:
-  engineState: stop                 # set to 'stop' to pause via Git and 'active' to run
+  engineState: active                 # set to 'stop' to pause via Git and 'active' to run
   annotationCheck: 'true'             # require app annotation as extra guard
   jobCleanUpPolicy: retain            # retain or delete
   appinfo:
@@ -13,7 +13,7 @@ spec:
     appkind: rollout
   chaosServiceAccount: joyful-litmus-admin
   experiments:
-    # - name: joyful-pod-delete
+    # - name: pod-delete
     #   spec:
     #     components:
     #       env:
@@ -48,7 +48,7 @@ spec:
     #             get:
     #               criteria: "=="
     #               responseCode: "200"
-    - name: joyful-pod-memory-hog
+    - name: pod-memory-hog
       spec:
         components:
           env:

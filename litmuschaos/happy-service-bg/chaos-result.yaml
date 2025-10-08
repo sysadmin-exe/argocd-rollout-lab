@@ -1,7 +1,7 @@
 apiVersion: litmuschaos.io/v1alpha1
 kind: ChaosResult
 metadata:
-  name: happy-service-pod-delete-happy-pod-delete
+  name: happy-service-pod-delete-pod-delete
   namespace: happy-service-bg
 spec:
   engine: happy-service-pod-delete
