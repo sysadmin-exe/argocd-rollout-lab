@@ -4,9 +4,9 @@ metadata:
   name: joyful-service-chaos-engine
   namespace: joyful-service-canary
 spec:
-  engineState: active                 # set to 'stop' to pause via Git and 'active' to run
+  engineState: stop                 # set to 'stop' to pause via Git and 'active' to run
   annotationCheck: 'true'             # require app annotation as extra guard
-  jobCleanUpPolicy: retain            # retain or delete
+  jobCleanUpPolicy: delete            # retain or delete
   appinfo:
     appns: joyful-service-canary
     applabel: app=joyful-canary
