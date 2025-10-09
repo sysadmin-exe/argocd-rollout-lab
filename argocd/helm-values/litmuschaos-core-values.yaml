@@ -1,0 +1,4 @@
+exporter:
+  enabled: true
+  serviceMonitor:
+    enabled: true
