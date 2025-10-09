@@ -17,8 +17,9 @@ spec:
   sources:
     - repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
       chart: opentelemetry-demo
-      # targetRevision: 0.60.1
+      targetRevision: "*"
       helm:
+        releaseName: otel-demo
         valueFiles:
           - $values/argocd/helm-values/otel-demo-values.yaml
     - repoURL: https://github.com/sysadmin-exe/argocd-rollout-lab
@@ -43,10 +44,11 @@ spec:
     syncOptions:
       - CreateNamespace=true
   sources:
-    - repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+    - repoURL: https://litmuschaos.github.io/litmus-helm
       chart: litmus
-      targetRevision: 3.21.0
+      targetRevision: "3.21.0"
       helm:
+        releaseName: litmuschaos
         valueFiles:
           - $values/argocd/helm-values/litmuschaos-values.yaml
     - repoURL: https://github.com/sysadmin-exe/argocd-rollout-lab
