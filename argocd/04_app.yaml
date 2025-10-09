@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: otel-demo
+  namespace: argocd
+spec:
+  project: sre-tools
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: otel-demo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  sources:
+    - repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+      chart: opentelemetry-demo
+      # targetRevision: 0.60.1
+      helm:
+        valueFiles:
+          - $values/argocd/helm-values/otel-demo-values.yaml
+    - repoURL: https://github.com/sysadmin-exe/argocd-rollout-lab
+      targetRevision: main
+      ref: values
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: litmuschaos
+  namespace: argocd
+spec:
+  project: sre-tools
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: litmuschaos
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  sources:
+    - repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+      chart: litmus
+      targetRevision: 3.21.0
+      helm:
+        valueFiles:
+          - $values/argocd/helm-values/litmuschaos-values.yaml
+    - repoURL: https://github.com/sysadmin-exe/argocd-rollout-lab
+      targetRevision: main
+      ref: values

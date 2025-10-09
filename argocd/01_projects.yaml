@@ -68,3 +68,26 @@ spec:
         kind: Job
       - group: litmuschaos.io
         kind: ChaosResult   # Results CR created by Litmus
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: sre-tools
+  namespace: argocd
+spec:
+  description: SRE tools (OpenTelemetry, LitmusChaos) managed by Argo CD
+  sourceRepos:
+    - https://github.com/sysadmin-exe/argocd-rollout-lab
+    - https://open-telemetry.github.io/opentelemetry-helm-charts
+    - https://litmuschaos.github.io/litmus-helm
+  destinations:
+    - namespace: observability
+      server: https://kubernetes.default.svc
+    - namespace: litmus
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  orphanedResources:
+    warn: true
